@@ -39,18 +39,18 @@ class handDetect():
         return lmlist
 
 
-def main():
-    cap = cv2.VideoCapture(0)
-    detector = handDetect()
-    while True:
-        succes, img = cap.read()
-        img = detector.findHands(img)
-        lmlist = detector.findPos(img)
-        if len(lmlist)!=0:
-            print(lmlist[0])
-        cv2.imshow("Image", img)
-        cv2.waitKey(1)
+# def main():
+#     cap = cv2.VideoCapture(0)
+#     detector = handDetect()
+#     while True:
+#         succes, img = cap.read()
+#         img = detector.findHands(img)
+#         lmlist = detector.findPos(img)
+#         if len(lmlist)!=0:
+#             print(lmlist[0])
+#         cv2.imshow("Image", img)
+#         cv2.waitKey(1)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

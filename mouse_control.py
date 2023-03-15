@@ -10,13 +10,13 @@ cap = cv2.VideoCapture(0)
 # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 pTime = 0
 #increase the confidence to increase precision
-detector = hands_module.handDetect(detectionCnf=0.9)
+detector = hands_module.handDetector(detectionCon=0.9)
 
 while True:
     success, img = cap.read()
     img = cv2.flip(img,1)   #웹캠 좌우반전
     img = detector.findHands(img)
-    lmlist = detector.findPos(img, draw=False)
+    lmlist = detector.findPosition(img, draw=False)
     if len(lmlist):
         x1, y1 = lmlist[4][1], lmlist[4][2]  #position of 엄지 끝
         x2, y2 = lmlist[8][1], lmlist[8][2]  #position of 검지 끝

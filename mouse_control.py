@@ -1,11 +1,11 @@
-import cv2
-import numpy as np
-import time
+# import cv2
+# import numpy as np
+# import time
 import HandTrackingModule as ht
+from lib import *
 import autopy   # Install using "pip install autopy"
 import pyautogui
 import voice_input 
-import beepsound
 # from autopy.mouse import RIGHT_BUTTON
 # from autopy.mouse import LEFT_BUTTON, RIGHT_BUTTON
 

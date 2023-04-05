@@ -1,6 +1,7 @@
 from lib import *
 import HandTrackingModule as ht
 import volumecontroller as vc
+import mouse_control as mc
 import autopy   # Install using "pip install autopy"
 import pyautogui
 from ctypes import cast, POINTER
@@ -47,27 +48,11 @@ while True:
         bbox1 = hand1["bbox"]  # Bounding box info x,y,w,h
         centerPoint1 = hand1['center']  # center of the hand cx,cy
         handType1 = hand1["type"]  # Handtype Left or Right
+        fingers1 = detector.fingersUp(hand1)
         
         # cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
         if handType1 == "Right":
-            length_left, _, img = detector.findDistance(lmList1[4][0:2], lmList1[8][0:2], img)  #좌클릭, 엄지 검지 거리
-            length_right, _, img = detector.findDistance(lmList1[4][0:2], lmList1[12][0:2], img) #우클릭, 엄지 중지 거리
-            length_center, info, img = detector.findDistance(lmList1[0][0:2], lmList1[9][0:2], img) #마우스 이동, 손바닥 중심
-            
-            x3 = np.interp(info[4], (frameR,width-frameR), (0,screen_width))
-            y3 = np.interp(info[5], (frameR, height-frameR), (0, screen_height))
-
-            curr_x = prev_x + (x3 - prev_x)/smoothening
-            curr_y = prev_y + (y3 - prev_y) / smoothening
-            autopy.mouse.move(curr_x, curr_y)
-            prev_x, prev_y = curr_x, curr_y
-            
-            # pyautogui.moveTo(lmList1[4][1] * 3, lmList1[4][1] * 2.25)
-            if length_left <= 20:
-                pyautogui.leftClick()
-            if length_right <= 30:
-                pyautogui.rightClick()
-            cv2.circle(img, (info[4], info[5]), 15, (255, 0, 0), cv2.FILLED) 
+            prev_x, prev_y, curr_x, curr_y = mc.ms_controller(detector, fingers1, lmList1, width, height,  frameR, smoothening, screen_width, screen_height, img, prev_x, prev_y, curr_x, curr_y)    
         elif handType1 == "Left":
             vc.vol_controller(lmList1, volume, volRange, img)
              
@@ -78,49 +63,16 @@ while True:
             bbox2 = hand2["bbox"]  # Bounding box info x,y,w,h
             centerPoint2 = hand2['center']  # center of the hand cx,cy
             handType2 = hand2["type"]  # Hand Type "Left" or move"Right"
-
+            fingers2 = detector.fingersUp(hand2)
+            
             if handType1 == "Right":
-                length_left, _, img = detector.findDistance(lmList1[4][0:2], lmList1[8][0:2], img)  #좌클릭, 엄지 검지 거리
-                length_right, _, img = detector.findDistance(lmList1[4][0:2], lmList1[12][0:2], img) #우클릭, 엄지 중지 거리
-                length_center, info, img = detector.findDistance(lmList1[0][0:2], lmList1[9][0:2], img) #마우스 이동, 손바닥 중심
-
-                x3 = np.interp(info[4], (frameR,width-frameR), (0,screen_width))
-                y3 = np.interp(info[5], (frameR, height-frameR), (0, screen_height))
-
-                curr_x = prev_x + (x3 - prev_x)/smoothening
-                curr_y = prev_y + (y3 - prev_y) / smoothening
-                autopy.mouse.move(curr_x, curr_y)  
-                prev_x, prev_y = curr_x, curr_y
-                
-                if length_left <= 20:
-                    pyautogui.leftClick()
-                if length_right <= 30:
-                    pyautogui.rightClick()
-
-                cv2.circle(img, (info[4], info[5]), 15, (255, 0, 0), cv2.FILLED)
+                prev_x, prev_y, curr_x, curr_y = mc.ms_controller(detector, fingers1, lmList1, width, height,  frameR, smoothening, screen_width, screen_height, img, prev_x, prev_y, curr_x, curr_y)    
                 
                 ## 볼륨
                 vc.vol_controller(lmList2, volume, volRange, img)
             
             elif handType2 == "Right":
-                length_left, _, img = detector.findDistance(lmList2[4][0:2], lmList2[8][0:2], img)  #좌클릭, 엄지 검지 거리
-                length_right, _, img = detector.findDistance(lmList2[4][0:2], lmList2[12][0:2], img) #우클릭, 엄지 중지 거리
-                length_center, info, img = detector.findDistance(lmList2[0][0:2], lmList2[9][0:2], img) #마우스 이동, 손바닥 중심
-                
-                x3 = np.interp(info[4], (frameR,width-frameR), (0,screen_width))
-                y3 = np.interp(info[5], (frameR, height-frameR), (0, screen_height))
-
-                curr_x = prev_x + (x3 - prev_x)/smoothening
-                curr_y = prev_y + (y3 - prev_y) / smoothening
-                autopy.mouse.move(curr_x, curr_y)
-                prev_x, prev_y = curr_x, curr_y
-                
-                cv2.circle(img, (info[4], info[5]), 15, (255, 0, 0), cv2.FILLED)
-                if length_left <= 20:
-                    pyautogui.leftClick()
-                if length_right <= 30:
-                    pyautogui.rightClick()
-                    
+                prev_x, prev_y, curr_x, curr_y = mc.ms_controller(detector, fingers2, lmList2, width, height,  frameR, smoothening, screen_width, screen_height, img, prev_x, prev_y, curr_x, curr_y)    
                 ##볼륨
                 vc.vol_controller(lmList1, volume, volRange, img)
 
@@ -137,7 +89,7 @@ while True:
     cv2.imshow('WebCam', img)
     cv2.waitKey(1)
     
-#     if cv2.waitKey(1) & 0xFF == 27:     # esc로 종료
-#         break
+    # if cv2.waitKey(1) & 0xFF == 27:     # esc로 종료
+    #     break
 
 # cv2.destroyAllWindows()

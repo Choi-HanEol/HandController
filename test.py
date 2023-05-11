@@ -3,7 +3,7 @@ import mediapipe as mp
 import numpy as np
 from tensorflow.keras.models import load_model
 
-actions = ['give me']
+actions = ['give me', 'not give me']
 seq_length = 30
 
 model = load_model('models/model.h5')
@@ -68,11 +68,10 @@ while cap.isOpened():
             input_data = np.expand_dims(np.array(seq[-seq_length:], dtype=np.float32), axis=0)
 
             y_pred = model.predict(input_data).squeeze()
-            
+
             i_pred = int(np.argmax(y_pred))
-            
-            conf = y_pred
-            
+            conf = y_pred[i_pred]
+
             if conf < 0.9:
                 continue
 

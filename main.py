@@ -3,7 +3,6 @@ import HandTrackingModule as ht
 import volumecontroller as vc
 import mouse_control as mc
 import autopy   # Install using "pip install autopy"
-import pyautogui
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume

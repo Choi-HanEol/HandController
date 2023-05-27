@@ -8,35 +8,12 @@ seq_length = 30
 
 model = load_model('models/model.h5')
 
-# MediaPipe hands model
-detector = ht.HandDetector(maxHands=2) 
-
-hands, img = detector.findHands(img, flipType=True)
-
-mp_hands = mp.solutions.hands
-mp_drawing = mp.solutions.drawing_utils
-hands = mp_hands.Hands(
-    max_num_hands=1,
-    min_detection_confidence=0.5,
-    min_tracking_confidence=0.5)
-
-cap = cv2.VideoCapture(0)
-
 seq = []
 action_seq = []
 
-while cap.isOpened():
-    
-    success, img = cap.read()
-    img = cv2.flip(img,1)   #웹캠 좌우반전
-    hands, img = detector.findHands(img, flipType=True)
-
-    ret, img = cap.read()
-
-    img = cv2.flip(img, 1)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    result = hands.process(img)
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+def rg_hand(img, hands):
+    imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    result = hands.process(imgRGB)
 
     if result.multi_hand_landmarks is not None:
         for res in result.multi_hand_landmarks:
@@ -62,8 +39,6 @@ while cap.isOpened():
 
             seq.append(d)
 
-            mp_drawing.draw_landmarks(img, res, mp_hands.HAND_CONNECTIONS)
-
             if len(seq) < seq_length:
                 continue
 
@@ -86,11 +61,11 @@ while cap.isOpened():
             this_action = '?'
             if action_seq[-1] == action_seq[-2] == action_seq[-3]:
                 this_action = action
-
+            print(action_seq)
             cv2.putText(img, f'{this_action.upper()}', org=(int(res.landmark[0].x * img.shape[1]), int(res.landmark[0].y * img.shape[0] + 20)), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 255, 255), thickness=2)
-
+    return this_action
     # out.write(img0)
     # out2.write(img)
-    cv2.imshow('img', img)
-    if cv2.waitKey(1) == ord('q'):
-        break
+    # cv2.imshow('img', img)
+    # if cv2.waitKey(1) == ord('q'):
+    #     break

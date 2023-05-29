@@ -48,6 +48,7 @@ class HandDetector:
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(imgRGB)
         allHands = []
+        
         h, w, c = img.shape
         if self.results.multi_hand_landmarks:
             for handType, handLms in zip(self.results.multi_handedness, self.results.multi_hand_landmarks):
@@ -98,17 +99,18 @@ class HandDetector:
             return allHands
 
 
-    def findGesture(self, img, actions, seq_length, model, seq, action_seq, handnum):
+    def findGesture(self, img, actions, seq_length, model, seq, action_seq, handlen):
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.result = self.hands.process(imgRGB)
         this_action = ' '
-
+        con = False
         if self.result.multi_hand_landmarks is not None:
             for res in self.result.multi_hand_landmarks:
-                res = self.result.multi_hand_landmarks[handnum]
-                # if handnum == 1:
-                #     continue
+                if handlen == 1 and con == False:
+                    con = True
+                    continue
                 joint = np.zeros((21, 4))
+                
                 for j, lm in enumerate(res.landmark):
                     joint[j] = [lm.x, lm.y, lm.z, lm.visibility]
 
@@ -156,6 +158,9 @@ class HandDetector:
                     this_action = action
 
                 cv2.putText(img, f'{this_action.upper()}', org=(int(res.landmark[0].x * img.shape[1]), int(res.landmark[0].y * img.shape[0] + 20)), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 255, 255), thickness=2)
+                if handlen == 0:
+                    break
+                
         return this_action, img, actions, seq_length, model, seq, action_seq
 
 

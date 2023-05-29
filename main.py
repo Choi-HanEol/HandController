@@ -42,8 +42,8 @@ seq = []
 action_seq = []
 
 
-handright1 = False
-handright2 = False
+handright1 = False  # 새로운 손
+handright2 = False  # 기존의 손
 
 while True:
     success, img = cap.read()
@@ -52,48 +52,90 @@ while True:
 
     if hands:
         # Hand 1
-
-        hand1 = hands[0]
-        lmList1 = hand1["lmList"]  # List of 21 Landmark points
-        bbox1 = hand1["bbox"]  # Bounding box info x,y,w,h
-        centerPoint1 = hand1['center']  # center of the hand cx,cy
-        handType1 = hand1["type"]  # Handtype Left or Right
-        handGesture1, img, actions, seq_length, model, seq, action_seq = detector.findGesture(img, actions=actions,
-                                                                                              seq_length=seq_length,
-                                                                                              model=model, seq=seq,
-                                                                                              action_seq=action_seq,
-                                                                                              handnum=0)
-        fingers1 = detector.fingersUp(hand1)
-        if handGesture1 == "give me":   
-            handright1 = True
-            handright2 = False
-            action_seq = []
-        # cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
-        if handType1 == "Right" and handright1 == True:
-            prev_x, prev_y, curr_x, curr_y = mc.ms_controller(detector, fingers1, lmList1, width, height, frameR,
-                                                              smoothening, screen_width, screen_height, img, prev_x,
-                                                              prev_y, curr_x, curr_y)
-        elif handType1 == "Left":
-            vc.vol_controller(lmList1, volume, volRange, img)
-
-        if len(hands) == 2:
+        if len(hands) == 1:
+            hand1 = hands[0]
+            lmList1 = hand1["lmList"]  # List of 21 Landmark points
+            bbox1 = hand1["bbox"]  # Bounding box info x,y,w,h
+            centerPoint1 = hand1['center']  # center of the hand cx,cy
+            handType1 = hand1["type"]  # Handtype Left or Right
+            # handGesture1, img, actions, seq_length, model, seq, action_seq = detector.findGesture(img, actions=actions,
+            #                                                                                       seq_length=seq_length,
+            #                                                                                       model=model, seq=seq,
+            #                                                                                       action_seq=action_seq,
+            #                                                                                       handlen=0)
+            fingers1 = detector.fingersUp(hand1)
+            if handType1 == "Right":   
+                    handGesture1, img, actions, seq_length, model, seq, action_seq = detector.findGesture(img, actions=actions,
+                                                                                                seq_length=seq_length,
+                                                                                                model=model, seq=seq,
+                                                                                                action_seq=action_seq,
+                                                                                                handlen=0)
+                    if handGesture1 == "give me":
+                        handright1 = True
+                        handright2 = False
+                        action_seq = []
+            else:   #handType1 == "Left"
+                handright1 = False
+                handright2 = False
+            # cv2.rectangle(img, (frameR, frameR), (width - frameR, height - frameR), (255, 0, 255), 2)   # Creating boundary box
+            if handType1 == "Right" and handright1 == True:
+                prev_x, prev_y, curr_x, curr_y = mc.ms_controller(detector, fingers1, lmList1, width, height, frameR,
+                                                                smoothening, screen_width, screen_height, img, prev_x,
+                                                                prev_y, curr_x, curr_y)
+            elif handType1 == "Left":
+                vc.vol_controller(lmList1, volume, volRange, img)
+            # print(len(hands))
+            
+        elif len(hands) == 2:
             # Hand 2
-            hand2 = hands[1]
+            hand1 = hands[1]
+            lmList1 = hand1["lmList"]  # List of 21 Landmark points
+            bbox1 = hand1["bbox"]  # Bounding box info x,y,w,h
+            centerPoint1 = hand1['center']  # center of the hand cx,cy
+            handType1 = hand1["type"]  # Handtype Left or Right
+            fingers1 = detector.fingersUp(hand1)
+            if handType1 == "Right":   
+                    handGesture1, img, actions, seq_length, model, seq, action_seq = detector.findGesture(img, actions=actions,
+                                                                                                seq_length=seq_length,
+                                                                                                model=model, seq=seq,
+                                                                                                action_seq=action_seq,
+                                                                                                handlen=1)
+                    if handGesture1 == "give me":
+                        handright1 = True
+                        handright2 = False
+                        action_seq = []
+            hand2 = hands[0]
             lmList2 = hand2["lmList"]  # List of 21 Landmark points
             bbox2 = hand2["bbox"]  # Bounding box info x,y,w,h
             centerPoint2 = hand2['center']  # center of the hand cx,cy
             handType2 = hand2["type"]  # Hand Type "Left" or move"Right"
-            handGesture2, img, actions, seq_length, model, seq, action_seq = detector.findGesture(img, actions=actions,
-                                                                                                  seq_length=seq_length,
-                                                                                                  model=model, seq=seq,
-                                                                                                  action_seq=action_seq,
-                                                                                                  handnum=1)
+            # handGesture2, img, actions, seq_length, model, seq, action_seq = detector.findGesture(img, actions=actions,
+            #                                                                                       seq_length=seq_length,
+            #                                                                                       model=model, seq=seq,
+            #                                                                                       action_seq=action_seq,
+            #                                                                                       handlen=1)
             fingers2 = detector.fingersUp(hand2)
-            if handGesture2 == "give me":   
-                handright2 = True
-                handright1 = False
-                action_seq = []
-
+            if handType2 == "Right":   
+                handGesture2, img, actions, seq_length, model, seq, action_seq = detector.findGesture(img, actions=actions,
+                                                                                              seq_length=seq_length,
+                                                                                              model=model, seq=seq,
+                                                                                              action_seq=action_seq,
+                                                                                              handlen=0)
+                # handGesture2, img, actions, seq_length, model, seq, action_seq = detector.findGesture(img, actions=actions,
+                #                                                                               seq_length=seq_length,
+                #                                                                               model=model, seq=seq,
+                #                                                                               action_seq=action_seq,
+                #                                                                               handlen=2)
+                if handGesture2 == "give me":
+                    handright2 = True
+                    handright1 = False
+                    action_seq = []
+                # elif handGesture2 == "give me":
+                #     handright2 = True
+                #     handright1 = False
+                #     action_seq = []
+            # print('handright1', handType1,handType1,handType1,handright1,handright1,handright1,handright1)
+            # print('handright2', handType2,handType2,handType2,handright2,handright2,handright2,handright2)
             if handType1 == "Right" and handright1 == True:
                 prev_x, prev_y, curr_x, curr_y = mc.ms_controller(detector, fingers1, lmList1, width, height, frameR,
                                                                   smoothening, screen_width, screen_height, img, prev_x,

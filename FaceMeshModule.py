@@ -3,13 +3,13 @@ import mediapipe as mp
 import numpy as np
 import time
 
+
 class faceDetector:
-    def __init__(self, mode=False, max_num_faces=1, min_detection_confidence = 0.5, min_tracking_confidence = 0.5):
+    def __init__(self, mode=False, max_num_faces=1, min_detection_confidence=0.5, min_tracking_confidence=0.5):
         self.mode = mode
         self.max_num_faces = max_num_faces
         self.min_detection_confidence = min_detection_confidence
         self.min_tracking_confidence = min_tracking_confidence
-        
 
         self.mp_face_mesh = mp.solutions.face_mesh
         self.face_mesh = self.mp_face_mesh.FaceMesh(static_image_mode=self.mode, max_num_faces=self.max_num_faces,
@@ -17,9 +17,9 @@ class faceDetector:
                                                     min_tracking_confidence=self.min_tracking_confidence)
 
         self.mp_drawing = mp.solutions.drawing_utils
-        self.drawing_spec = self.mp_drawing.DrawingSpec(thickness = 1, circle_radius=1)
+        self.drawing_spec = self.mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 
-    def face_mseh_direction(self, img):
+    def face_mseh_direction(self, before_direction, img):
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         imgRGB.flags.writeable = False
         self.results = self.face_mesh.process(imgRGB)
@@ -48,11 +48,11 @@ class faceDetector:
 
                 face_3d = np.array(face_3d, dtype=np.float64)
 
-                focal_length = 1 *img_w
+                focal_length = 1 * img_w
 
-                cam_matrix = np.array([[focal_length, 0, img_h/2],
-                                    [0, focal_length, img_w/2],
-                                    [0, 0, 1]])
+                cam_matrix = np.array([[focal_length, 0, img_h / 2],
+                                       [0, focal_length, img_w / 2],
+                                       [0, 0, 1]])
 
                 dist_matrix = np.zeros((4, 1), dtype=np.float64)
 
@@ -76,12 +76,12 @@ class faceDetector:
                     text = "UP"
                 else:
                     text = "Forward"
-                
+
                 direction = text
                 nose_3d_projection, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
 
                 p1 = (int(nose_2d[0]), int(nose_2d[1]))
-                p2 = (int(nose_2d[0] + y *10), int(nose_2d[1] - x * 10))
+                p2 = (int(nose_2d[0] + y * 10), int(nose_2d[1] - x * 10))
 
                 cv2.line(img, p1, p2, (255, 0, 0), 3)
 
@@ -90,11 +90,11 @@ class faceDetector:
                 # cv2.putText(img, "y: " + str(np.round(y, 2)), (500, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
                 # cv2.putText(img, "z: " + str(np.round(z, 2)), (500, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
                 self.mp_drawing.draw_landmarks(
-                            image = img,
-                            landmark_list=face_landmarks,
-                            connections=self.mp_face_mesh.FACEMESH_TESSELATION,
-                            landmark_drawing_spec=self.drawing_spec,
-                            connection_drawing_spec=self.drawing_spec)
+                    image=img,
+                    landmark_list=face_landmarks,
+                    connections=self.mp_face_mesh.FACEMESH_TESSELATION,
+                    landmark_drawing_spec=self.drawing_spec,
+                    connection_drawing_spec=self.drawing_spec)
+        else:
+            return before_direction, img
         return direction, img
-
-
